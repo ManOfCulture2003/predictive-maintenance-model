@@ -1,35 +1,34 @@
 # Predictive Maintenance Model
 
-## Overview
-This repository demonstrates how to build a simple predictive maintenance model using synthetic data. The goal is to classify whether equipment requires maintenance based on sensor readings and operating conditions. By analyzing patterns in the data, the model can alert maintenance teams before failures occur, reducing downtime and costs.
+**Educational portfolio project — default data is synthetic, not real employer, airline, or machinery data.**
 
-## Features
-- **Synthetic dataset**: The Python script generates a mock dataset with features such as temperature, vibration, pressure, and a binary label indicating whether maintenance is needed.
-- **Data preparation**: Includes steps for data cleaning, train–test split, and feature scaling to prepare data for modeling.
-- **Logistic regression classifier**: Implements a logistic regression model using scikit‑learn to predict maintenance needs.
-- **Model evaluation**: Prints performance metrics such as accuracy, precision, recall, and F1 score to assess model effectiveness.
-- **Reusable script**: The analysis is contained in a single file (`predictive_maintenance_model.py`) that can be adapted to real datasets.
+Fits logistic regression using named simulated equipment sensors, with stratified holdout, F1/precision/recall, a confusion matrix, and majority-class baseline.
 
-## Repository Structure
-- `predictive_maintenance_model.py`: Generates synthetic data, trains a logistic regression model, and prints evaluation metrics.
+## Setup (Python 3.11+)
 
-## Technologies Used
-- Python 3 (Pandas, NumPy, Scikit‑learn)
-- Git and GitHub for version control and collaboration
+```bash
+python -m venv .venv
+# Windows: .venv\\Scripts\\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python predictive_maintenance_model.py
+python -m unittest discover -v
+```
 
+The program writes generated artifacts under `outputs/` (ignored by Git). To analyze a local CSV instead, pass `--input your_file.csv`.
 
-## Getting Started
-1. **Clone the repository**:
-   git clone https://github.com/ray1131313131/predictive-maintenance-model
-   cd predictive-maintenance-model
-2. **Install dependencies**:
-   pip install pandas numpy scikit-learn
-3. **Run the script**:
-   python predictive_maintenance_model.py
-   The script will output model performance metrics to the console.
+CSV fields: `temperature_c,vibration_mm_s,pressure_bar,equipment_age_years,maintenance_needed`. Read the input validation code before substituting your data. No company or customer information should be uploaded without permission.
 
-## Why This Project
-Predictive maintenance leverages data to anticipate equipment failures before they happen, saving time and resources. This project provides a simple, reproducible example of building a classification model for maintenance needs, which can be extended to real-world datasets.
+## Technical approach
 
-## License
-This project is released under the MIT License.
+Fits logistic regression using named simulated equipment sensors, with stratified holdout, F1/precision/recall, a confusion matrix, and majority-class baseline.
+
+The automated tests cover reproducibility and core validation/metrics. GitHub Actions runs the tests on pushes and pull requests.
+
+## Limits
+
+The generated figures and model scores demonstrate code behavior **only**. They are not real-world business improvements, production deployments, or evidence of predictive accuracy on actual organizations. More real-world validation, data quality checks, and monitoring are needed before deployment.
+
+## Portfolio talking points
+
+This project demonstrates Python data processing, an automated test suite, reproducible dependencies, and technical documentation. Be ready to walk through the source code yourself.
