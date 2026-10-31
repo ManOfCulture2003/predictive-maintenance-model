@@ -27,8 +27,19 @@ def generate_data(n=1000, seed=42):
                          "maintenance_needed":label})
 
 def evaluate(df, seed=42):
+    missing = set(FEATURES + ["maintenance_needed"]) - set(df.columns)
+    if missing:
+        raise ValueError("Missing columns: " + ", ".join(sorted(missing)))
     if df.empty or df[FEATURES + ["maintenance_needed"]].isna().any().any():
         raise ValueError("Missing values or no samples")
+    df = df.copy()
+    for column in FEATURES:
+        try:
+            df[column] = pd.to_numeric(df[column], errors="raise")
+        except (ValueError, TypeError) as exc:
+            raise ValueError(f"{column} must contain finite numeric sensor readings") from exc
+        if not np.isfinite(df[column]).all():
+            raise ValueError(f"{column} must contain finite numeric sensor readings")
     if not set(df["maintenance_needed"].unique()).issubset({0, 1}) or df["maintenance_needed"].nunique() != 2:
         raise ValueError("Need both binary classes 0 and 1")
     x_train, x_test, y_train, y_test = train_test_split(
