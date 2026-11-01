@@ -5,6 +5,17 @@ import pandas as pd
 from predictive_maintenance_model import generate_data,evaluate
 
 class MaintenanceTests(unittest.TestCase):
+    def test_single_class_holdout_rejected(self):
+        data = generate_data(n=100)
+        data["maintenance_needed"] = [0] * 98 + [1] * 2
+        with self.assertRaisesRegex(ValueError, "both classes.*holdout"):
+            evaluate(data, seed=0)
+
+    def test_class_support_matches_holdout_size(self):
+        result = evaluate(generate_data())
+        self.assertEqual(sum(result["test_class_counts"].values()), result["test_samples"])
+        self.assertGreater(result["test_class_counts"]["0"], 0)
+        self.assertGreater(result["test_class_counts"]["1"], 0)
     def test_missing_columns_have_actionable_error(self):
         data = generate_data().drop(columns=["temperature_c", "maintenance_needed"])
         with self.assertRaisesRegex(ValueError, "Missing columns: maintenance_needed, temperature_c"):

@@ -45,12 +45,15 @@ def evaluate(df, seed=42):
     x_train, x_test, y_train, y_test = train_test_split(
         df[FEATURES], df["maintenance_needed"], test_size=.25,
         stratify=df["maintenance_needed"], random_state=seed)
+    if y_train.nunique() != 2 or y_test.nunique() != 2:
+        raise ValueError("Need both classes in training and holdout; add more minority-class samples")
     model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, random_state=seed))
     model.fit(x_train, y_train)
     baseline = DummyClassifier(strategy="most_frequent").fit(x_train, y_train)
     pred = model.predict(x_test)
     return {
         "dataset": "synthetic or user-supplied", "samples":len(df), "test_samples":len(y_test),
+        "test_class_counts": {str(label): int((y_test == label).sum()) for label in (0, 1)},
         "baseline_accuracy":float(accuracy_score(y_test, baseline.predict(x_test))),
         "accuracy":float(accuracy_score(y_test, pred)),
         "precision":float(precision_score(y_test, pred, zero_division=0)),

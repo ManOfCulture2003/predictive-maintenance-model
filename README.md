@@ -21,6 +21,8 @@ CSV fields: `temperature_c,vibration_mm_s,pressure_bar,equipment_age_years,maint
 
 ## Technical approach
 
+Both training and holdout must contain both target classes. A highly imbalanced input may fail this check even with stratified splitting; add representative minority-class observations rather than interpreting a holdout with no failures. Metrics include `test_class_counts` to show the support for each class.
+
 Fits logistic regression using named simulated equipment sensors, with stratified holdout, F1/precision/recall, a confusion matrix, and majority-class baseline.
 
 The automated tests cover reproducibility and core validation/metrics. GitHub Actions runs the tests on pushes and pull requests.
