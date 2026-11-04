@@ -21,6 +21,8 @@ CSV fields: `temperature_c,vibration_mm_s,pressure_bar,equipment_age_years,maint
 
 ## Technical approach
 
+The majority-class baseline reports precision, recall, F1 and a confusion matrix alongside accuracy on the same holdout. For example, an 80% accurate baseline can still miss every maintenance case. Confusion matrices use class order `[0, 1]` (rows: actual, columns: predicted).
+
 Both training and holdout must contain both target classes. A highly imbalanced input may fail this check even with stratified splitting; add representative minority-class observations rather than interpreting a holdout with no failures. Metrics include `test_class_counts` to show the support for each class.
 
 Fits logistic regression using named simulated equipment sensors, with stratified holdout, F1/precision/recall, a confusion matrix, and majority-class baseline.

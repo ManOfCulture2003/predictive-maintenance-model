@@ -50,11 +50,16 @@ def evaluate(df, seed=42):
     model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, random_state=seed))
     model.fit(x_train, y_train)
     baseline = DummyClassifier(strategy="most_frequent").fit(x_train, y_train)
+    baseline_pred = baseline.predict(x_test)
     pred = model.predict(x_test)
     return {
         "dataset": "synthetic or user-supplied", "samples":len(df), "test_samples":len(y_test),
         "test_class_counts": {str(label): int((y_test == label).sum()) for label in (0, 1)},
-        "baseline_accuracy":float(accuracy_score(y_test, baseline.predict(x_test))),
+        "baseline_accuracy":float(accuracy_score(y_test, baseline_pred)),
+        "baseline_precision":float(precision_score(y_test, baseline_pred, zero_division=0)),
+        "baseline_recall":float(recall_score(y_test, baseline_pred, zero_division=0)),
+        "baseline_f1":float(f1_score(y_test, baseline_pred, zero_division=0)),
+        "baseline_confusion_matrix":confusion_matrix(y_test, baseline_pred, labels=[0, 1]).tolist(),
         "accuracy":float(accuracy_score(y_test, pred)),
         "precision":float(precision_score(y_test, pred, zero_division=0)),
         "recall":float(recall_score(y_test, pred, zero_division=0)),

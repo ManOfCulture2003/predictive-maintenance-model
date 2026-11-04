@@ -5,6 +5,15 @@ import pandas as pd
 from predictive_maintenance_model import generate_data,evaluate
 
 class MaintenanceTests(unittest.TestCase):
+    def test_majority_baseline_exposes_failure_detection_metrics(self):
+        data = generate_data(n=200)
+        data["maintenance_needed"] = [0] * 160 + [1] * 40
+        metrics = evaluate(data)
+        self.assertEqual(metrics["baseline_accuracy"], 0.8)
+        self.assertEqual(metrics["baseline_precision"], 0)
+        self.assertEqual(metrics["baseline_recall"], 0)
+        self.assertEqual(metrics["baseline_f1"], 0)
+        self.assertEqual(metrics["baseline_confusion_matrix"], [[40, 0], [10, 0]])
     def test_single_class_holdout_rejected(self):
         data = generate_data(n=100)
         data["maintenance_needed"] = [0] * 98 + [1] * 2
