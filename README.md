@@ -1,35 +1,43 @@
-# Predictive Maintenance Model
+# Predictive Maintenance Model — Synthetic Classification Lab
 
-## Overview
-This repository demonstrates how to build a simple predictive maintenance model using synthetic data. The goal is to classify whether equipment requires maintenance based on sensor readings and operating conditions. By analyzing patterns in the data, the model can alert maintenance teams before failures occur, reducing downtime and costs.
+A **reproducible educational classification experiment**, not a real equipment-failure predictor. The generated data uses abstract `synthetic_feature_0` through `synthetic_feature_9`; it does **not** contain temperature, pressure, vibration, machine IDs, or actual breakdowns.
 
-## Features
-- **Synthetic dataset**: The Python script generates a mock dataset with features such as temperature, vibration, pressure, and a binary label indicating whether maintenance is needed.
-- **Data preparation**: Includes steps for data cleaning, train–test split, and feature scaling to prepare data for modeling.
-- **Logistic regression classifier**: Implements a logistic regression model using scikit‑learn to predict maintenance needs.
-- **Model evaluation**: Prints performance metrics such as accuracy, precision, recall, and F1 score to assess model effectiveness.
-- **Reusable script**: The analysis is contained in a single file (`predictive_maintenance_model.py`) that can be adapted to real datasets.
+## Run locally (free)
 
-## Repository Structure
-- `predictive_maintenance_model.py`: Generates synthetic data, trains a logistic regression model, and prints evaluation metrics.
+Python 3.11 or newer:
 
-## Technologies Used
-- Python 3 (Pandas, NumPy, Scikit‑learn)
-- Git and GitHub for version control and collaboration
+```bash
+git clone https://github.com/ManOfCulture2003/predictive-maintenance-model.git
+cd predictive-maintenance-model
+python -m pip install -r requirements.txt
+python predictive_maintenance_model.py
+python predictive_maintenance_model.py --samples 200 --seed 42 --output report.json
+python -m unittest discover -s tests -v
+```
 
+The optional `report.json` is written locally; avoid committing reports from private data if you later adapt this experiment.
 
-## Getting Started
-1. **Clone the repository**:
-   git clone https://github.com/ray1131313131/predictive-maintenance-model
-   cd predictive-maintenance-model
-2. **Install dependencies**:
-   pip install pandas numpy scikit-learn
-3. **Run the script**:
-   python predictive_maintenance_model.py
-   The script will output model performance metrics to the console.
+## What the evaluation actually tests
 
-## Why This Project
-Predictive maintenance leverages data to anticipate equipment failures before they happen, saving time and resources. This project provides a simple, reproducible example of building a classification model for maintenance needs, which can be extended to real-world datasets.
+1. Generate imbalanced synthetic binary labels (~15% positive) with scikit-learn's `make_classification`.
+2. Make a **stratified** 70/30 train/test split with a fixed seed.
+3. Fit `StandardScaler` **inside the training-only pipeline** to avoid leakage from test-set statistics.
+4. Compare logistic regression against a majority-class `DummyClassifier` baseline.
+5. Print test-set accuracy, precision, recall, F1, ROC-AUC and confusion matrices for both.
+
+The majority baseline can have high accuracy while missing all positive cases; recall and the confusion matrix expose that problem. Scores are reproducible for the same seed and dependency versions, but may change across library versions.
+
+## Architecture
+
+`make_demo_data → stratified split → [training-only scaler + logistic regression | majority baseline] → held-out metrics → optional JSON`
+
+## Limitations and next steps
+
+- Independent random rows are not chronological machine histories. A real project needs properly licensed equipment records, feature provenance, group/time-based splits, failure horizons, leakage checks, calibration, operational costs and external validation.
+- **Do not interpret demo scores as real-world accuracy or use them to make maintenance decisions.**
+- No real sensors, IoT access, or paid services are required.
+- Next: add a documented public equipment dataset and evaluate temporal and equipment-group holdouts, only after verifying license and provenance.
 
 ## License
-This project is released under the MIT License.
+
+The previous README described this project as MIT licensed, but no LICENSE file was present. Licensing requires an explicit owner decision; this change does not assert that a license has been granted.
