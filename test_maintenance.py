@@ -1,0 +1,61 @@
+import unittest
+from unittest.mock import patch
+import numpy as np
+import pandas as pd
+from predictive_maintenance_model import generate_data,evaluate
+
+class MaintenanceTests(unittest.TestCase):
+    def test_majority_baseline_exposes_failure_detection_metrics(self):
+        data = generate_data(n=200)
+        data["maintenance_needed"] = [0] * 160 + [1] * 40
+        metrics = evaluate(data)
+        self.assertEqual(metrics["baseline_accuracy"], 0.8)
+        self.assertEqual(metrics["baseline_precision"], 0)
+        self.assertEqual(metrics["baseline_recall"], 0)
+        self.assertEqual(metrics["baseline_f1"], 0)
+        self.assertEqual(metrics["baseline_confusion_matrix"], [[40, 0], [10, 0]])
+    def test_single_class_holdout_rejected(self):
+        data = generate_data(n=100)
+        data["maintenance_needed"] = [0] * 98 + [1] * 2
+        with self.assertRaisesRegex(ValueError, "both classes.*holdout"):
+            evaluate(data, seed=0)
+
+    def test_class_support_matches_holdout_size(self):
+        result = evaluate(generate_data())
+        self.assertEqual(sum(result["test_class_counts"].values()), result["test_samples"])
+        self.assertGreater(result["test_class_counts"]["0"], 0)
+        self.assertGreater(result["test_class_counts"]["1"], 0)
+    def test_missing_columns_have_actionable_error(self):
+        data = generate_data().drop(columns=["temperature_c", "maintenance_needed"])
+        with self.assertRaisesRegex(ValueError, "Missing columns: maintenance_needed, temperature_c"):
+            evaluate(data)
+
+    def test_nonfinite_sensors_rejected_before_split(self):
+        for value in (np.inf, -np.inf, "inf", "bad"):
+            with self.subTest(value=value):
+                data = generate_data()
+                data["temperature_c"] = data["temperature_c"].astype(object)
+                data.loc[0, "temperature_c"] = value
+                with patch("predictive_maintenance_model.train_test_split") as split:
+                    with self.assertRaisesRegex(ValueError, "temperature_c"):
+                        evaluate(data)
+                    split.assert_not_called()
+
+    def test_numeric_sensor_strings_do_not_mutate_input(self):
+        data = generate_data()
+        data["temperature_c"] = data["temperature_c"].astype(str)
+        original = data.copy(deep=True)
+        metrics = evaluate(data)
+        self.assertEqual(metrics["test_samples"], 250)
+        pd.testing.assert_frame_equal(data, original)
+    def test_repeatability(self):
+        pd.testing.assert_frame_equal(generate_data(),generate_data())
+    def test_baseline_and_holdout(self):
+        m=evaluate(generate_data())
+        self.assertEqual(m["test_samples"],250)
+        self.assertIn("baseline_accuracy",m)
+    def test_invalid_label(self):
+        d=generate_data();d["maintenance_needed"]=1
+        with self.assertRaises(ValueError):evaluate(d)
+
+if __name__=="__main__": unittest.main()
