@@ -8,7 +8,7 @@ from pathlib import Path
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -32,6 +32,7 @@ def evaluate(y_true, predicted, scores):
     )
     return {
         "accuracy": round(float(accuracy_score(y_true, predicted)), 4),
+        "balanced_accuracy": round(float(balanced_accuracy_score(y_true, predicted)), 4),
         "precision": round(float(precision), 4),
         "recall": round(float(recall), 4),
         "f1": round(float(f1), 4),

@@ -4,13 +4,22 @@ import sys
 import unittest
 from pathlib import Path
 
-from predictive_maintenance_model import make_demo_data, run_experiment
+from predictive_maintenance_model import evaluate, make_demo_data, run_experiment
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_balanced_accuracy_weights_both_classes_equally(self):
+        # Eight negatives and two positives: all-negative predictions look 80% accurate.
+        labels = [0] * 8 + [1] * 2
+        baseline = evaluate(labels, [0] * 10, [0.0] * 10)
+        self.assertEqual(baseline["accuracy"], 0.8)
+        self.assertEqual(baseline["balanced_accuracy"], 0.5)
+        perfect = evaluate(labels, labels, labels)
+        self.assertEqual(perfect["balanced_accuracy"], 1.0)
+
     def test_seed_is_reproducible(self):
         self.assertEqual(run_experiment(200, 42), run_experiment(200, 42))
 
@@ -29,7 +38,7 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(report["test_rows"], 60)
         for key in ("model", "majority_baseline"):
             metrics = report[key]
-            for metric in ("accuracy", "precision", "recall", "f1", "roc_auc"):
+            for metric in ("accuracy", "balanced_accuracy", "precision", "recall", "f1", "roc_auc"):
                 self.assertGreaterEqual(metrics[metric], 0)
                 self.assertLessEqual(metrics[metric], 1)
             self.assertEqual(sum(map(sum, metrics["confusion_matrix"])), 60)
