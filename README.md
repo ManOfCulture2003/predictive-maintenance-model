@@ -23,9 +23,11 @@ The optional `report.json` is written locally; avoid committing reports from pri
 2. Make a **stratified** 70/30 train/test split with a fixed seed.
 3. Fit `StandardScaler` **inside the training-only pipeline** to avoid leakage from test-set statistics.
 4. Compare logistic regression against a majority-class `DummyClassifier` baseline.
-5. Print test-set accuracy, precision, recall, F1, ROC-AUC and confusion matrices for both.
+5. Print test-set accuracy, balanced accuracy, precision, recall, F1, ROC-AUC and confusion matrices for both.
 
 The majority baseline can have high accuracy while missing all positive cases; recall and the confusion matrix expose that problem. Scores are reproducible for the same seed and dependency versions, but may change across library versions.
+
+Balanced accuracy averages recall for the negative and positive classes, giving them equal weight despite their different sample counts. An all-negative classifier scores 0.5 when both classes are present, even if ordinary accuracy is 0.85. Both model and baseline JSON results include `balanced_accuracy`.
 
 ## Architecture
 
