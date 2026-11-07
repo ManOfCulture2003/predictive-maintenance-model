@@ -11,6 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_evaluation_requires_both_target_classes(self):
+        for labels in ([], [0, 0], [1, 1]):
+            with self.subTest(labels=labels):
+                with self.assertRaisesRegex(ValueError, "both.*0.*1"):
+                    evaluate(labels, labels, [0.5] * len(labels))
+
     def test_balanced_accuracy_weights_both_classes_equally(self):
         # Eight negatives and two positives: all-negative predictions look 80% accurate.
         labels = [0] * 8 + [1] * 2

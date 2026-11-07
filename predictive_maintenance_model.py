@@ -27,6 +27,8 @@ def make_demo_data(n_samples: int = 1000, seed: int = 42):
 
 
 def evaluate(y_true, predicted, scores):
+    if set(y_true) != {0, 1}:
+        raise ValueError("Evaluation requires both target classes 0 and 1")
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true, predicted, average="binary", zero_division=0
     )
