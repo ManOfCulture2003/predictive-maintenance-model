@@ -8,7 +8,7 @@ from pathlib import Path
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -27,11 +27,14 @@ def make_demo_data(n_samples: int = 1000, seed: int = 42):
 
 
 def evaluate(y_true, predicted, scores):
+    if set(y_true) != {0, 1}:
+        raise ValueError("Evaluation requires both target classes 0 and 1")
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true, predicted, average="binary", zero_division=0
     )
     return {
         "accuracy": round(float(accuracy_score(y_true, predicted)), 4),
+        "balanced_accuracy": round(float(balanced_accuracy_score(y_true, predicted)), 4),
         "precision": round(float(precision), 4),
         "recall": round(float(recall), 4),
         "f1": round(float(f1), 4),
