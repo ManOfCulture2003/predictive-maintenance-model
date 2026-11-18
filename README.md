@@ -43,3 +43,5 @@ Balanced accuracy averages recall for the negative and positive classes, giving 
 ## License
 
 The previous README described this project as MIT licensed, but no LICENSE file was present. Licensing requires an explicit owner decision; this change does not assert that a license has been granted.
+
+JSON reports are written to a temporary file in the destination folder, then replace the destination after the write completes. A write or replacement error is reported by the CLI and leaves the previous report intact. This does not promise recovery from power loss or hardware failure.
