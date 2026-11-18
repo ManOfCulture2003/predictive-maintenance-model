@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import tempfile
 from pathlib import Path
 
 from sklearn.datasets import make_classification
@@ -73,6 +75,21 @@ def run_experiment(n_samples: int = 1000, seed: int = 42) -> dict:
     }
 
 
+def save_report(path: Path, payload: str) -> None:
+    """Replace the report only after writing a complete temporary file beside it."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=".maintenance-", suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(payload)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--samples", type=int, default=1000)
@@ -85,8 +102,10 @@ def main(argv=None):
         parser.error(str(exc))
     payload = json.dumps(result, indent=2) + "\n"
     if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(payload, encoding="utf-8")
+        try:
+            save_report(args.output, payload)
+        except OSError as exc:
+            parser.error(f"Could not save report: {exc}")
         print(f"Saved evaluation to {args.output}")
     else:
         print(payload)
