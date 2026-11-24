@@ -29,6 +29,8 @@ The majority baseline can have high accuracy while missing all positive cases; r
 
 Balanced accuracy averages recall for the negative and positive classes, giving them equal weight despite their different sample counts. An all-negative classifier scores 0.5 when both classes are present, even if ordinary accuracy is 0.85. Both model and baseline JSON results include `balanced_accuracy`.
 
+Both results also include `average_precision`, computed from prediction scores rather than the final 0/1 decisions. It summarizes precision across recall levels. With constant scores, its value equals the positive share of the test set, which gives this imbalanced dataset a useful reference point. A higher score is better, but it does not establish real-world reliability. See the [scikit-learn definition](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.average_precision_score.html); this is not trapezoidal area under a precision-recall curve.
+
 ## Architecture
 
 `make_demo_data → stratified split → [training-only scaler + logistic regression | majority baseline] → held-out metrics → optional JSON`
