@@ -31,6 +31,8 @@ Balanced accuracy averages recall for the negative and positive classes, giving 
 
 ## Architecture
 
+Model and baseline results include `brier_loss`: the mean squared difference between each positive-class probability and its actual 0/1 outcome. Lower is better (0 is perfect; 1 is completely wrong for this binary score). It distinguishes probability quality even when classifications are identical. The `evaluate` function therefore expects probabilities between 0 and 1, not arbitrary decision scores. A lower loss alone does not prove better calibration or real-world reliability. See the [metric definition](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.brier_score_loss.html) and [calibration limitations](https://scikit-learn.org/stable/modules/calibration.html).
+
 `make_demo_data → stratified split → [training-only scaler + logistic regression | majority baseline] → held-out metrics → optional JSON`
 
 ## Limitations and next steps
