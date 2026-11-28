@@ -8,7 +8,7 @@ from pathlib import Path
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, brier_score_loss, confusion_matrix, precision_recall_fscore_support, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -39,6 +39,7 @@ def evaluate(y_true, predicted, scores):
         "recall": round(float(recall), 4),
         "f1": round(float(f1), 4),
         "roc_auc": round(float(roc_auc_score(y_true, scores)), 4),
+        "brier_loss": round(float(brier_score_loss(y_true, scores)), 4),
         "confusion_matrix": confusion_matrix(y_true, predicted, labels=[0, 1]).tolist(),
     }
 
@@ -51,19 +52,25 @@ def run_experiment(n_samples: int = 1000, seed: int = 42) -> dict:
     # Fit the scaler ONLY on training rows, preventing preprocessing leakage.
     model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, random_state=seed))
     baseline = DummyClassifier(strategy="most_frequent")
+    prior_baseline = DummyClassifier(strategy="prior")
     model.fit(X_train, y_train)
     baseline.fit(X_train, y_train)
+    prior_baseline.fit(X_train, y_train)
     return {
         "dataset": "scikit-learn make_classification (synthetic, not sensor data)",
         "seed": seed,
         "samples": n_samples,
         "train_rows": len(y_train),
+        "train_positive_count": int(y_train.sum()),
         "test_rows": len(y_test),
         "test_positive_count": int(y_test.sum()),
         "feature_names": FEATURE_NAMES,
         "model": evaluate(y_test, model.predict(X_test), model.predict_proba(X_test)[:, 1]),
         "majority_baseline": evaluate(
             y_test, baseline.predict(X_test), baseline.predict_proba(X_test)[:, 1]
+        ),
+        "class_prior_baseline": evaluate(
+            y_test, prior_baseline.predict(X_test), prior_baseline.predict_proba(X_test)[:, 1]
         ),
         "limitations": [
             "Artificial independent rows are not equipment histories.",

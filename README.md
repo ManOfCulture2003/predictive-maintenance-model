@@ -31,6 +31,10 @@ Balanced accuracy averages recall for the negative and positive classes, giving 
 
 ## Architecture
 
+The report also includes `class_prior_baseline`, a constant probability reference learned from training labels only. Unlike the majority baseline's 0/1 probabilities, it assigns the observed training positive share to every test row. `train_positive_count` and `train_rows` let you check that reference. Compare Brier loss against this baseline as well as the majority baseline; beating a hard 0/1 reference alone is a weak test of probability quality. No test labels are used to fit either baseline.
+
+Model and baseline results include `brier_loss`: the mean squared difference between each positive-class probability and its actual 0/1 outcome. Lower is better (0 is perfect; 1 is completely wrong for this binary score). It distinguishes probability quality even when classifications are identical. The `evaluate` function therefore expects probabilities between 0 and 1, not arbitrary decision scores. A lower loss alone does not prove better calibration or real-world reliability. See the [metric definition](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.brier_score_loss.html) and [calibration limitations](https://scikit-learn.org/stable/modules/calibration.html).
+
 `make_demo_data → stratified split → [training-only scaler + logistic regression | majority baseline] → held-out metrics → optional JSON`
 
 ## Limitations and next steps
